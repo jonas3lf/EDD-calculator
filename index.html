@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IVF Kalkulačka</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,system-ui;
+  background:#f5f5f5;
+}
+
+.app{
+  max-width:420px;
+  margin:auto;
+  padding:16px;
+}
+
+.card{
+  background:white;
+  padding:16px;
+  border-radius:16px;
+}
+
+.tabs{
+  display:flex;
+  gap:6px;
+  margin-bottom:10px;
+}
+
+.tab{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#ddd;
+  font-weight:bold;
+}
+
+.tab.active{
+  background:#4A7B6F;
+  color:white;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+
+.days{
+  display:flex;
+  gap:5px;
+}
+
+.days button{
+  flex:1;
+  padding:10px;
+}
+
+.result{
+  margin-top:15px;
+  padding:15px;
+  border-radius:12px;
+  background:#4A7B6F;
+  color:white;
+}
+
+.big{
+  font-size:40px;
+  font-weight:bold;
+}
+
+.btn{
+  margin-top:10px;
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+}
+
+.secondary{
+  background:#eee;
+}
+
+.advanced{
+  margin-top:10px;
+  display:none;
+}
+
+</style>
+</head>
+
+<body>
+<div class="app">
+<div class="card">
+
+<div class="tabs">
+<button class="tab active" onclick="setTab('lmp')">LMP</button>
+<button class="tab" onclick="setTab('opu')">OPU</button>
+<button class="tab" onclick="setTab('et')">ET</button>
+</div>
+
+<div id="inputs"></div>
+
+<div id="result"></div>
+
+<button class="btn secondary" onclick="toggleAdvanced()">+ Pokročilé</button>
+
+<div class="advanced" id="advanced">
+
+<h4>GA k datu</h4>
+<input type="date" id="gaDate">
+
+<h4>CRL → GA (mm)</h4>
+<input type="number" id="crl" placeholder="např. 12">
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+let tab="lmp";
+
+let state={
+  lmp:localStorage.lmp || today(),
+  opu:localStorage.opu || today(),
+  et:localStorage.et || today(),
+  day:localStorage.day || 5
+};
+
+function today(){
+  return new Date().toISOString().split('T')[0];
+}
+
+function setTab(t){
+  tab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  render();
+}
+
+function save(){
+  localStorage.lmp=state.lmp;
+  localStorage.opu=state.opu;
+  localStorage.et=state.et;
+  localStorage.day=state.day;
+}
+
+function render(){
+
+  let html="";
+
+  if(tab==="lmp"){
+    html+=`<input type="date" value="${state.lmp}" onchange="state.lmp=this.value;save();render()">`;
+  }
+
+  if(tab==="opu"){
+    html+=`<input type="date" value="${state.opu}" onchange="state.opu=this.value;save();render()">`;
+  }
+
+  if(tab==="et"){
+    html+=`<input type="date" value="${state.et}" onchange="state.et=this.value;save();render()">`;
+
+    html+=`<div class="days">`;
+    [3,4,5,6].forEach(d=>{
+      html+=`<button onclick="state.day=${d};save();render()" ${state.day==d?'style="background:#4A7B6F;color:white"':''}>D${d}</button>`;
+    });
+    html+=`</div>`;
+  }
+
+  document.getElementById("inputs").innerHTML=html;
+
+  calculate();
+}
+
+function calculate(){
+
+  let lmp;
+
+  if(tab==="lmp") lmp=new Date(state.lmp);
+  if(tab==="opu"){ lmp=new Date(state.opu); lmp.setDate(lmp.getDate()-14); }
+  if(tab==="et"){ lmp=new Date(state.et); lmp.setDate(lmp.getDate()-(14+Number(state.day))); }
+
+  const now=new Date();
+  const diff=Math.floor((now-lmp)/86400000);
+
+  const w=Math.floor(diff/7);
+  const d=diff%7;
+
+  const edd=new Date(lmp);
+  edd.setDate(edd.getDate()+280);
+
+  let extra="";
+
+  const gaDate=document.getElementById("gaDate")?.value;
+  if(gaDate){
+    const target=new Date(gaDate);
+    const diff2=Math.floor((target-lmp)/86400000);
+    extra+=`<div>GA k datu: ${Math.floor(diff2/7)}+${diff2%7}</div>`;
+  }
+
+  const crl=document.getElementById("crl")?.value;
+  if(crl){
+    const ga=Math.round(42 + (Number(crl)*1.2));
+    extra+=`<div>CRL odhad: ${Math.floor(ga/7)}+${ga%7}</div>`;
+  }
+
+  document.getElementById("result").innerHTML=`
+    <div class="result">
+      <div class="big">${w}+${d}</div>
+      <div>EDD: ${edd.toLocaleDateString()}</div>
+      ${extra}
+      <button class="btn" onclick="share('${w}+${d}','${edd.toLocaleDateString()}')">Sdílet</button>
+    </div>
+  `;
+}
+
+function share(ga,edd){
+  const text=`GA: ${ga}\nEDD: ${edd}`;
+  if(navigator.share){
+    navigator.share({text});
+  }else{
+    navigator.clipboard.writeText(text);
+  }
+}
+
+function toggleAdvanced(){
+  const el=document.getElementById("advanced");
+  el.style.display=el.style.display==="block"?"none":"block";
+}
+
+render();
+
+// PWA
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+
+</script>
+</body>
+</html>
