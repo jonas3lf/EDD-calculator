@@ -2,323 +2,291 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>IVF Kalkulačka</title>
 
-<link rel="manifest" href="manifest.json">
-
 <style>
+:root {
+  --primary-green: #587d71; /* Odpovídá screenshotu */
+  --bg-color: #F2F2F7;
+  --card-bg: #FFFFFF;
+  --tab-bg: #E5E5EA;
+  --text-main: #1C1C1E;
+  --text-secondary: #8E8E93;
+}
 
-/* GLOBAL FIX */
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
-body{
-  margin:0;
-  font-family:-apple-system, system-ui;
-  background:#F2F2F7;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  display: flex;
+  justify-content: center;
+  padding: 20px 12px;
 }
 
-.app{
-  max-width:420px;
-  margin:auto;
-  padding:20px 16px 40px;
+.app-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--card-bg);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
-/* TABS */
-.tabs{
-  display:flex;
-  background:#E5E5EA;
-  border-radius:12px;
-  padding:4px;
-  margin-bottom:12px;
+/* TABS - Sjednocení vzhledu */
+.tabs {
+  display: flex;
+  background: var(--tab-bg);
+  border-radius: 12px;
+  padding: 3px;
+  margin-bottom: 16px;
 }
 
-.tab{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  background:transparent;
-  font-weight:600;
-  color:#6B6B6B;
+.tab {
+  flex: 1;
+  padding: 10px 5px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-weight: 600;
+  font-size: 14px;
+  color: #8E8E93;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.tab.active{
-  background:#fff;
-  color:#000;
+.tab.active {
+  background: #FFFFFF;
+  color: var(--primary-green);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* INPUT WRAP */
-.input-wrap{
-  width:100%;
+/* INPUTY - Fix iOS šířky a vzhledu */
+input {
+  width: 100%;
+  height: 54px;
+  border-radius: 14px;
+  border: none;
+  background: #E5E5EA;
+  font-size: 19px;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 12px;
+  font-family: inherit;
+  color: var(--text-main);
+  -webkit-appearance: none;
 }
 
-/* INPUT FIX (iOS) */
-input{
-  width:100%;
-  height:52px;
-  padding:0 14px;
-  border-radius:14px;
-  border:none;
-  font-size:17px;
-  text-align:center;
-  background:#fff;
-  box-shadow:0 1px 2px rgba(0,0,0,0.06);
-  margin-bottom:12px;
+/* DNY (D3-D6) - Fix hranatosti */
+.days-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-input[type="date"]{
-  -webkit-appearance:none;
-  appearance:none;
+.day-btn {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 12px; /* Důležité: Fix pro iOS */
+  background: var(--tab-bg);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text-main);
+  transition: background 0.2s;
 }
 
-/* DAYS */
-.days{
-  display:flex;
-  gap:8px;
-  margin-bottom:12px;
+.day-btn.active {
+  background: var(--primary-green) !important;
+  color: white !important;
+  border-radius: 12px; /* Opakování pro jistotu */
 }
 
-.days button{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:12px;
-  background:#E5E5EA;
-  font-weight:500;
-  transition:all 0.15s ease;
+/* VÝSLEDKOVÝ BOX (Zelený jako na screenu) */
+.result-box {
+  background: var(--primary-green);
+  border-radius: 18px;
+  padding: 24px 16px;
+  color: white;
+  text-align: left;
+  margin-top: 10px;
 }
 
-/* FIXED ACTIVE STATE */
-.days button.active{
-  background:#4A7B6F;
-  color:white;
+.ga-value {
+  font-size: 58px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 8px;
 }
 
-/* RESULT */
-.result{
-  margin-top:20px;
-  text-align:center;
+.edd-label {
+  font-size: 18px;
+  opacity: 0.9;
+  font-weight: 400;
 }
 
-.ga{
-  font-size:64px;
-  font-weight:700;
+/* TLAČÍTKA AKCÍ */
+.action-buttons {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.meta{
-  margin-top:6px;
-  font-size:16px;
-  color:#6B6B6B;
+.btn-share {
+  width: 100%;
+  background: rgba(255,255,255,0.9);
+  color: #4A7B6F;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
 }
 
-.meta strong{
-  color:#000;
+.btn-advanced {
+  background: #F2F2F7;
+  color: var(--primary-green);
+  border: none;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 14px;
 }
 
-/* BUTTONS */
-.actions{
-  margin-top:20px;
-  display:flex;
-  gap:10px;
+.advanced-panel {
+  display: none;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
 }
 
-.btn{
-  flex:1;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  font-weight:600;
-  background:#E5E5EA;
+.label-small {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  margin-left: 4px;
 }
-
-.btn.primary{
-  background:#4A7B6F;
-  color:white;
-}
-
-/* ADVANCED */
-.advanced{
-  margin-top:20px;
-  display:none;
-}
-
-.section{
-  margin-top:14px;
-}
-
-.section label{
-  font-size:13px;
-  color:#6B6B6B;
-  margin-bottom:6px;
-  display:block;
-}
-
 </style>
 </head>
-
 <body>
 
-<div class="app">
+<div class="app-card">
+  <div class="tabs">
+    <button class="tab active" id="tab-lmp" onclick="setTab('lmp')">LMP</button>
+    <button class="tab" id="tab-opu" onclick="setTab('opu')">OPU</button>
+    <button class="tab" id="tab-et" onclick="setTab('et')">ET</button>
+  </div>
 
-<div class="tabs">
-<button class="tab active" onclick="setTab('lmp')">LMP</button>
-<button class="tab" onclick="setTab('opu')">OPU</button>
-<button class="tab" onclick="setTab('et')">ET</button>
-</div>
+  <div id="inputs-container"></div>
 
-<div class="input-wrap" id="inputs"></div>
+  <div id="result-container"></div>
 
-<div class="result" id="result"></div>
+  <div class="action-buttons">
+    <button class="btn-advanced" onclick="toggleAdvanced()">+ Pokročilé</button>
+  </div>
 
-<div class="actions">
-<button class="btn primary" onclick="share()">Sdílet</button>
-<button class="btn" onclick="toggleAdvanced()">+</button>
-</div>
-
-<div class="advanced" id="advanced">
-
-<div class="section">
-<label>GA k datu</label>
-<input type="date" id="gaDate">
-</div>
-
-<div class="section">
-<label>CRL (mm)</label>
-<input type="number" id="crl" placeholder="např. 12">
-</div>
-
-<div class="section">
-<button class="btn" onclick="resetAdvanced()">Reset</button>
-</div>
-
-</div>
-
+  <div class="advanced-panel" id="advanced">
+    <label class="label-small">GA k datu</label>
+    <input type="date" id="gaDate" onchange="calculate()">
+    
+    <label class="label-small">CRL (mm)</label>
+    <input type="number" id="crl" placeholder="např. 12" oninput="calculate()">
+  </div>
 </div>
 
 <script>
-
-let tab="lmp";
-
-let state={
-  lmp:localStorage.lmp || today(),
-  opu:localStorage.opu || today(),
-  et:localStorage.et || today(),
-  day:localStorage.day || 5
+let state = {
+  tab: 'et', // Výchozí dle screenshotu
+  date: today(),
+  day: 5
 };
 
-function today(){
+function today() {
   return new Date().toISOString().split('T')[0];
 }
 
-function setTab(t){
-  tab=t;
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
+function setTab(t) {
+  state.tab = t;
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${t}`).classList.add('active');
   render();
 }
 
-function save(){
-  localStorage.lmp=state.lmp;
-  localStorage.opu=state.opu;
-  localStorage.et=state.et;
-  localStorage.day=state.day;
-}
+function render() {
+  const container = document.getElementById('inputs-container');
+  let html = `<input type="date" value="${state.date}" onchange="state.date=this.value; calculate()">`;
 
-function render(){
-
-  let html="";
-
-  if(tab==="lmp"){
-    html+=`<input type="date" value="${state.lmp}" onchange="state.lmp=this.value;save();render()">`;
-  }
-
-  if(tab==="opu"){
-    html+=`<input type="date" value="${state.opu}" onchange="state.opu=this.value;save();render()">`;
-  }
-
-  if(tab==="et"){
-    html+=`<input type="date" value="${state.et}" onchange="state.et=this.value;save();render()">`;
-
-    html+=`<div class="days">`;
-    [3,4,5,6].forEach(d=>{
-      html+=`<button class="${state.day==d?'active':''}" onclick="state.day=${d};save();render()">D${d}</button>`;
+  if (state.tab === 'et') {
+    html += `<div class="days-row">`;
+    [3, 4, 5, 6].forEach(d => {
+      html += `<button class="day-btn ${state.day == d ? 'active' : ''}" onclick="state.day=${d}; render()">${d==='D'?'':''}D${d}</button>`;
     });
-    html+=`</div>`;
+    html += `</div>`;
   }
-
-  document.getElementById("inputs").innerHTML=html;
-
+  
+  container.innerHTML = html;
   calculate();
 }
 
-function calculate(){
+function calculate() {
+  let lmp = new Date(state.date);
+  
+  if (state.tab === 'opu') lmp.setDate(lmp.getDate() - 14);
+  if (state.tab === 'et') lmp.setDate(lmp.getDate() - (14 + Number(state.day)));
 
-  let lmp;
+  const now = new Date();
+  const diff = Math.floor((now - lmp) / 86400000);
+  const w = Math.floor(diff / 7);
+  const d = diff % 7;
 
-  if(tab==="lmp") lmp=new Date(state.lmp);
-  if(tab==="opu"){ lmp=new Date(state.opu); lmp.setDate(lmp.getDate()-14); }
-  if(tab==="et"){ lmp=new Date(state.et); lmp.setDate(lmp.getDate()-(14+Number(state.day))); }
+  const edd = new Date(lmp);
+  edd.setDate(edd.getDate() + 280);
 
-  const now=new Date();
-  const diff=Math.floor((now-lmp)/86400000);
+  // Formátování data pro ČR
+  const eddString = edd.toLocaleDateString('cs-CZ');
 
-  const w=Math.floor(diff/7);
-  const d=diff%7;
-
-  const edd=new Date(lmp);
-  edd.setDate(edd.getDate()+280);
-
-  let extra="";
-
-  const gaDate=document.getElementById("gaDate")?.value || "";
-  if(gaDate){
-    const target=new Date(gaDate);
-    const diff2=Math.floor((target-lmp)/86400000);
-    extra+=`<div class="meta">GA k datu: <strong>${Math.floor(diff2/7)}+${diff2%7}</strong></div>`;
+  let extraHtml = "";
+  const gaDateVal = document.getElementById("gaDate").value;
+  if(gaDateVal) {
+      const target = new Date(gaDateVal);
+      const diff2 = Math.floor((target - lmp) / 86400000);
+      extraHtml = `<div style="margin-top:8px; font-size:14px; opacity:0.8">GA k vybranému datu: ${Math.floor(diff2/7)}+${diff2%7}</div>`;
   }
 
-  const crl=document.getElementById("crl")?.value || "";
-  if(crl){
-    const ga=Math.round(42 + (Number(crl)*1.2));
-    extra+=`<div class="meta">CRL odhad: <strong>${Math.floor(ga/7)}+${ga%7}</strong></div>`;
-  }
-
-  document.getElementById("result").innerHTML=`
-    <div class="ga">${w}+${d}</div>
-    <div class="meta">EDD: <strong>${edd.toLocaleDateString()}</strong></div>
-    ${extra}
+  document.getElementById("result-container").innerHTML = `
+    <div class="result-box">
+      <div class="ga-value">${w}+${d}</div>
+      <div class="edd-label">EDD: ${eddString}</div>
+      ${extraHtml}
+      <button class="btn-share" style="margin-top:20px" onclick="share()">Sdílet</button>
+    </div>
   `;
 }
 
-function share(){
-  const text=document.getElementById("result").innerText;
-  if(navigator.share){
-    navigator.share({text});
-  }else{
+function share() {
+  const text = `Moje těhotenství: ${document.querySelector('.ga-value').innerText}, termín porodu ${document.querySelector('.edd-label').innerText}`;
+  if (navigator.share) {
+    navigator.share({ title: 'IVF Kalkulačka', text: text });
+  } else {
     navigator.clipboard.writeText(text);
+    alert('Zkopírováno do schránky');
   }
 }
 
-function toggleAdvanced(){
-  const el=document.getElementById("advanced");
-  el.style.display=el.style.display==="block"?"none":"block";
+function toggleAdvanced() {
+  const el = document.getElementById("advanced");
+  el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
-function resetAdvanced(){
-  document.getElementById("gaDate").value="";
-  document.getElementById("crl").value="";
-  calculate();
-}
-
+// Inicializace
 render();
-
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
-}
-
 </script>
 
 </body>
