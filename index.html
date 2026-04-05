@@ -8,91 +8,142 @@
 <link rel="manifest" href="manifest.json">
 
 <style>
+:root{
+  --bg:#F2F2F7;
+  --card:#FFFFFF;
+  --text:#000;
+  --secondary:#6B6B6B;
+  --accent:#4A7B6F;
+}
+
 body{
   margin:0;
-  font-family:-apple-system,system-ui;
-  background:#f5f5f5;
+  font-family:-apple-system, BlinkMacSystemFont, system-ui;
+  background:var(--bg);
 }
 
 .app{
   max-width:420px;
   margin:auto;
-  padding:16px;
+  padding:20px 16px 40px;
 }
 
-.card{
-  background:white;
-  padding:16px;
-  border-radius:16px;
-}
-
+/* SEGMENT CONTROL */
 .tabs{
+  display:flex;
+  background:#E5E5EA;
+  border-radius:12px;
+  padding:4px;
+  margin-bottom:18px;
+}
+
+.tab{
+  flex:1;
+  padding:8px;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  background:transparent;
+  color:var(--secondary);
+}
+
+.tab.active{
+  background:white;
+  color:var(--text);
+}
+
+/* INPUT */
+input{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:14px;
+  font-size:18px;
+  text-align:center;
+  background:var(--card);
+  box-shadow:0 1px 2px rgba(0,0,0,0.05);
+  margin-bottom:12px;
+}
+
+/* DAYS */
+.days{
   display:flex;
   gap:6px;
   margin-bottom:10px;
 }
 
-.tab{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  background:#ddd;
-  font-weight:bold;
-}
-
-.tab.active{
-  background:#4A7B6F;
-  color:white;
-}
-
-input{
-  width:100%;
-  padding:12px;
-  margin-bottom:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  font-size:16px;
-}
-
-.days{
-  display:flex;
-  gap:5px;
-}
-
 .days button{
   flex:1;
   padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#E5E5EA;
+  font-weight:500;
 }
 
-.result{
-  margin-top:15px;
-  padding:15px;
-  border-radius:12px;
-  background:#4A7B6F;
+.days button.active{
+  background:var(--accent);
   color:white;
 }
 
-.big{
-  font-size:40px;
-  font-weight:bold;
+/* RESULT */
+.result{
+  margin-top:20px;
+  text-align:center;
+}
+
+.ga{
+  font-size:64px;
+  font-weight:700;
+  letter-spacing:-1px;
+}
+
+.meta{
+  margin-top:8px;
+  font-size:16px;
+  color:var(--secondary);
+}
+
+.meta strong{
+  color:var(--text);
+}
+
+/* ACTION BUTTONS */
+.actions{
+  margin-top:20px;
+  display:flex;
+  gap:10px;
 }
 
 .btn{
-  margin-top:10px;
-  width:100%;
-  padding:10px;
+  flex:1;
+  padding:14px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
+  font-weight:600;
+  background:#E5E5EA;
 }
 
-.secondary{
-  background:#eee;
+.btn.primary{
+  background:var(--accent);
+  color:white;
 }
 
+/* ADVANCED */
 .advanced{
-  margin-top:10px;
+  margin-top:20px;
   display:none;
+}
+
+.section{
+  margin-top:14px;
+}
+
+.section label{
+  font-size:13px;
+  color:var(--secondary);
+  display:block;
+  margin-bottom:6px;
 }
 
 </style>
@@ -100,7 +151,6 @@ input{
 
 <body>
 <div class="app">
-<div class="card">
 
 <div class="tabs">
 <button class="tab active" onclick="setTab('lmp')">LMP</button>
@@ -110,21 +160,31 @@ input{
 
 <div id="inputs"></div>
 
-<div id="result"></div>
+<div class="result" id="result"></div>
 
-<button class="btn secondary" onclick="toggleAdvanced()">+ Pokročilé</button>
+<div class="actions">
+<button class="btn primary" onclick="share()">Sdílet</button>
+<button class="btn" onclick="toggleAdvanced()">+</button>
+</div>
 
 <div class="advanced" id="advanced">
 
-<h4>GA k datu</h4>
+<div class="section">
+<label>GA k datu</label>
 <input type="date" id="gaDate">
+</div>
 
-<h4>CRL → GA (mm)</h4>
+<div class="section">
+<label>CRL (mm)</label>
 <input type="number" id="crl" placeholder="např. 12">
+</div>
 
+<div class="section">
+<button class="btn" onclick="resetAdvanced()">Reset</button>
 </div>
 
 </div>
+
 </div>
 
 <script>
@@ -173,7 +233,7 @@ function render(){
 
     html+=`<div class="days">`;
     [3,4,5,6].forEach(d=>{
-      html+=`<button onclick="state.day=${d};save();render()" ${state.day==d?'style="background:#4A7B6F;color:white"':''}>D${d}</button>`;
+      html+=`<button class="${state.day==d?'active':''}" onclick="state.day=${d};save();render()">D${d}</button>`;
     });
     html+=`</div>`;
   }
@@ -206,27 +266,24 @@ function calculate(){
   if(gaDate){
     const target=new Date(gaDate);
     const diff2=Math.floor((target-lmp)/86400000);
-    extra+=`<div>GA k datu: ${Math.floor(diff2/7)}+${diff2%7}</div>`;
+    extra+=`<div class="meta">GA k datu: <strong>${Math.floor(diff2/7)}+${diff2%7}</strong></div>`;
   }
 
   const crl=document.getElementById("crl")?.value;
   if(crl){
     const ga=Math.round(42 + (Number(crl)*1.2));
-    extra+=`<div>CRL odhad: ${Math.floor(ga/7)}+${ga%7}</div>`;
+    extra+=`<div class="meta">CRL odhad: <strong>${Math.floor(ga/7)}+${ga%7}</strong></div>`;
   }
 
   document.getElementById("result").innerHTML=`
-    <div class="result">
-      <div class="big">${w}+${d}</div>
-      <div>EDD: ${edd.toLocaleDateString()}</div>
-      ${extra}
-      <button class="btn" onclick="share('${w}+${d}','${edd.toLocaleDateString()}')">Sdílet</button>
-    </div>
+    <div class="ga">${w}+${d}</div>
+    <div class="meta">EDD: <strong>${edd.toLocaleDateString()}</strong></div>
+    ${extra}
   `;
 }
 
-function share(ga,edd){
-  const text=`GA: ${ga}\nEDD: ${edd}`;
+function share(){
+  const text=document.getElementById("result").innerText;
   if(navigator.share){
     navigator.share({text});
   }else{
@@ -237,6 +294,12 @@ function share(ga,edd){
 function toggleAdvanced(){
   const el=document.getElementById("advanced");
   el.style.display=el.style.display==="block"?"none":"block";
+}
+
+function resetAdvanced(){
+  document.getElementById("gaDate").value="";
+  document.getElementById("crl").value="";
+  calculate();
 }
 
 render();
