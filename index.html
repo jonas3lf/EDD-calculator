@@ -8,18 +8,16 @@
 <link rel="manifest" href="manifest.json">
 
 <style>
-:root{
-  --bg:#F2F2F7;
-  --card:#FFFFFF;
-  --text:#000;
-  --secondary:#6B6B6B;
-  --accent:#4A7B6F;
+
+/* GLOBAL FIX */
+* {
+  box-sizing: border-box;
 }
 
 body{
   margin:0;
-  font-family:-apple-system, BlinkMacSystemFont, system-ui;
-  background:var(--bg);
+  font-family:-apple-system, system-ui;
+  background:#F2F2F7;
 }
 
 .app{
@@ -28,61 +26,74 @@ body{
   padding:20px 16px 40px;
 }
 
-/* SEGMENT CONTROL */
+/* TABS */
 .tabs{
   display:flex;
   background:#E5E5EA;
   border-radius:12px;
   padding:4px;
-  margin-bottom:18px;
+  margin-bottom:12px;
 }
 
 .tab{
   flex:1;
-  padding:8px;
+  padding:10px;
   border:none;
   border-radius:10px;
-  font-weight:600;
   background:transparent;
-  color:var(--secondary);
+  font-weight:600;
+  color:#6B6B6B;
 }
 
 .tab.active{
-  background:white;
-  color:var(--text);
+  background:#fff;
+  color:#000;
 }
 
-/* INPUT */
+/* INPUT WRAP */
+.input-wrap{
+  width:100%;
+}
+
+/* INPUT FIX (iOS) */
 input{
   width:100%;
-  padding:16px;
-  border:none;
+  height:52px;
+  padding:0 14px;
   border-radius:14px;
-  font-size:18px;
+  border:none;
+  font-size:17px;
   text-align:center;
-  background:var(--card);
-  box-shadow:0 1px 2px rgba(0,0,0,0.05);
+  background:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,0.06);
   margin-bottom:12px;
+}
+
+input[type="date"]{
+  -webkit-appearance:none;
+  appearance:none;
 }
 
 /* DAYS */
 .days{
   display:flex;
-  gap:6px;
-  margin-bottom:10px;
+  gap:8px;
+  margin-bottom:12px;
 }
 
 .days button{
   flex:1;
   padding:10px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   background:#E5E5EA;
   font-weight:500;
+  transition:all 0.15s ease;
 }
 
+/* FIXED ACTIVE STATE */
 .days button.active{
-  background:var(--accent);
+  background:#4A7B6F;
   color:white;
 }
 
@@ -95,20 +106,19 @@ input{
 .ga{
   font-size:64px;
   font-weight:700;
-  letter-spacing:-1px;
 }
 
 .meta{
-  margin-top:8px;
+  margin-top:6px;
   font-size:16px;
-  color:var(--secondary);
+  color:#6B6B6B;
 }
 
 .meta strong{
-  color:var(--text);
+  color:#000;
 }
 
-/* ACTION BUTTONS */
+/* BUTTONS */
 .actions{
   margin-top:20px;
   display:flex;
@@ -125,7 +135,7 @@ input{
 }
 
 .btn.primary{
-  background:var(--accent);
+  background:#4A7B6F;
   color:white;
 }
 
@@ -141,15 +151,16 @@ input{
 
 .section label{
   font-size:13px;
-  color:var(--secondary);
-  display:block;
+  color:#6B6B6B;
   margin-bottom:6px;
+  display:block;
 }
 
 </style>
 </head>
 
 <body>
+
 <div class="app">
 
 <div class="tabs">
@@ -158,7 +169,7 @@ input{
 <button class="tab" onclick="setTab('et')">ET</button>
 </div>
 
-<div id="inputs"></div>
+<div class="input-wrap" id="inputs"></div>
 
 <div class="result" id="result"></div>
 
@@ -262,14 +273,14 @@ function calculate(){
 
   let extra="";
 
-  const gaDate=document.getElementById("gaDate")?.value;
+  const gaDate=document.getElementById("gaDate")?.value || "";
   if(gaDate){
     const target=new Date(gaDate);
     const diff2=Math.floor((target-lmp)/86400000);
     extra+=`<div class="meta">GA k datu: <strong>${Math.floor(diff2/7)}+${diff2%7}</strong></div>`;
   }
 
-  const crl=document.getElementById("crl")?.value;
+  const crl=document.getElementById("crl")?.value || "";
   if(crl){
     const ga=Math.round(42 + (Number(crl)*1.2));
     extra+=`<div class="meta">CRL odhad: <strong>${Math.floor(ga/7)}+${ga%7}</strong></div>`;
@@ -304,11 +315,11 @@ function resetAdvanced(){
 
 render();
 
-// PWA
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js');
 }
 
 </script>
+
 </body>
 </html>
