@@ -3,26 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>IVF Kalkulačka Pro</title>
+    <title>IVF Kalkulačka</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IVF Kalkulačka">
-    
-    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=2">
-    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=2">
 
-    <script>
-        // Vyčištění cache pro opravu zobrazení
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for(let registration of registrations) { registration.unregister(); }
-            });
-        }
-        caches.keys().then(names => {
-            for (let name of names) caches.delete(name);
-        });
-    </script>
+    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=999">
+    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=999">
+
     <style>
         :root { --primary: #4A7B6F; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --secondary-text: #8E8E93; --accent-bg: #E5E5EA; }
         @media (prefers-color-scheme: dark) { :root { --bg: #000000; --card: #1C1C1E; --text: #FFFFFF; --accent-bg: #2C2C2E; } }
@@ -62,7 +51,6 @@
             <button class="tab" id="tab-crl" onclick="setTab('crl')">CRL</button>
         </div>
         <div id="input-fields"></div>
-        <label>Výpočet k datu</label>
         <div class="date-toggle">
             <button class="toggle-btn active" id="btn-today" onclick="setTargetDate('today')">Dnes</button>
             <button class="toggle-btn" id="btn-custom" onclick="setTargetDate('custom')">Jiné datum</button>
@@ -71,7 +59,6 @@
     </div>
     <div id="result-area"></div>
     <div id="schedule-overlay" class="section">
-        <h3 style="margin-bottom:12px; font-size:16px;">Týdenní harmonogram</h3>
         <table><tbody id="schedule-body"></tbody></table>
     </div>
 </div>
@@ -107,10 +94,6 @@
                 <div style="font-size:12px; text-transform:uppercase; opacity:0.8">${state.targetMode === 'today' ? 'Dnes jste' : 'K vybranému datu:'}</div>
                 <div class="ga-main">${w}+${d}</div>
                 <div style="margin: 5px 0 15px; font-size: 17px;">Termín: ${edd.toLocaleDateString('cs-CZ', {day:'numeric', month:'long', year:'numeric'})}</div>
-                <div class="stats-grid">
-                    <div class="stat-box"><span>Trimestr</span><b>${w < 13 ? '1.' : (w < 27 ? '2.' : '3.')}</b></div>
-                    <div class="stat-box"><span>Zbývá dní</span><b>${Math.max(0, Math.floor((edd-calcDay)/86400000))}</b></div>
-                </div>
                 <button class="btn-action" onclick="toggleSchedule()">Zobrazit harmonogram</button>
             </div>`;
         let tableHtml = '';
