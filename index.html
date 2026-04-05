@@ -8,11 +8,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IVF Kalkulačka">
-    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG">
-    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG">
+    
+    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=2">
+    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=2">
 
     <script>
-        // Úplné vyčištění cache při každém načtení pro opravu designu
+        // Vyčištění cache pro opravu zobrazení
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
                 for(let registration of registrations) { registration.unregister(); }
