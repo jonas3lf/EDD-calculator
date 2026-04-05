@@ -8,10 +8,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IVF Kalkulačka">
-    <link rel="apple-touch-icon" href="icon-192.PNG">
+    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG">
+    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG">
 
     <script>
-        // AGRESIVNÍ MAZÁNÍ STARÉ VERZE
+        // Úplné vyčištění cache při každém načtení pro opravu designu
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
                 for(let registration of registrations) { registration.unregister(); }
@@ -25,7 +26,7 @@
         :root { --primary: #4A7B6F; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --secondary-text: #8E8E93; --accent-bg: #E5E5EA; }
         @media (prefers-color-scheme: dark) { :root { --bg: #000000; --card: #1C1C1E; --text: #FFFFFF; --accent-bg: #2C2C2E; } }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 16px 40px; display: flex; justify-content: center; }
+        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 16px 40px; display: flex; justify-content: center; overflow-x: hidden; }
         .app-wrapper { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
         .section { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .tabs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--accent-bg); border-radius: 12px; padding: 2px; margin-bottom: 12px; }
