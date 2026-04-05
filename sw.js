@@ -1,4 +1,5 @@
-const CACHE_NAME = 'ivf-calc-v2'; // Změň verzi (v1 -> v2) při každé velké změně
+// Přejmenuj verzi na v3 (nebo cokoli jiného, než tam bylo)
+const CACHE_NAME = 'ivf-calc-v3'; 
 const ASSETS = [
   './',
   './index.html',
@@ -6,10 +7,10 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Vynutí okamžité nahrazení starého service workera
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
-  self.skipWaiting(); // Vynutí okamžitou aktivaci nové verze
 });
 
 self.addEventListener('activate', (event) => {
