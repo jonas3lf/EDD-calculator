@@ -8,15 +8,25 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IVF Kalkulačka">
+    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-edd.PNG">
+    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-edd.PNG">
 
-    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=FinalV4">
-    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=FinalV4">
-
+    <script>
+        // TOTÁLNÍ AGRESIVNÍ RESET
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for(let registration of registrations) { registration.unregister(); }
+            });
+        }
+        caches.keys().then(names => {
+            for (let name of names) caches.delete(name);
+        });
+    </script>
     <style>
         :root { --primary: #4A7B6F; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --secondary-text: #8E8E93; --accent-bg: #E5E5EA; }
         @media (prefers-color-scheme: dark) { :root { --bg: #000000; --card: #1C1C1E; --text: #FFFFFF; --accent-bg: #2C2C2E; } }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 16px 40px; display: flex; justify-content: center; overflow-x: hidden; }
+        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 16px 40px; display: flex; justify-content: center; }
         .app-wrapper { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
         .section { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .tabs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--accent-bg); border-radius: 12px; padding: 2px; margin-bottom: 12px; }
@@ -43,93 +53,90 @@
 <div class="app-wrapper">
     <div class="section">
         <div class="tabs">
-            <button class="tab" id="tab-lmp" onclick="setTab('lmp')">LMP</button>
-            <button class="tab" id="tab-opu" onclick="setTab('opu')">OPU</button>
-            <button class="tab active" id="tab-et" onclick="setTab('et')">ET/KET</button>
-            <button class="tab" id="tab-crl" onclick="setTab('crl')">CRL</button>
+            <button class="tab" id="tab-lmp" onclick="execTab('lmp')">LMP</button>
+            <button class="tab" id="tab-opu" onclick="execTab('opu')">OPU</button>
+            <button class="tab active" id="tab-et" onclick="execTab('et')">ET/KET</button>
+            <button class="tab" id="tab-crl" onclick="execTab('crl')">CRL</button>
         </div>
         <div id="input-fields"></div>
         <div class="date-toggle">
-            <button class="toggle-btn active" id="btn-today" onclick="setTargetDate('today')">Dnes</button>
-            <button class="toggle-btn" id="btn-custom" onclick="setTargetDate('custom')">Jiné datum</button>
+            <button class="toggle-btn active" id="btn-today" onclick="execTargetDate('today')">Dnes</button>
+            <button class="toggle-btn" id="btn-custom" onclick="execTargetDate('custom')">Jiné datum</button>
         </div>
-        <input type="date" id="targetDateInput" style="display:none" onchange="calculate()">
+        <input type="date" id="targetDateInput" style="display:none" onchange="performCalc()">
     </div>
     <div id="result-area"></div>
     <div id="schedule-overlay" class="section">
+        <h3 style="margin-bottom:12px; font-size:16px;">Týdenní harmonogram</h3>
         <table><tbody id="schedule-body"></tbody></table>
     </div>
 </div>
 <script>
     // Inicializace: Výchozí mode je ET a CRL je prázdné
-    let state = { mode: 'et', baseDate: new Date().toISOString().split('T')[0], targetMode: 'today', targetDate: new Date().toISOString().split('T')[0], etDay: 5, crlVal: "" };
+    let appState = { mode: 'et', baseDate: new Date().toISOString().split('T')[0], targetMode: 'today', targetDate: new Date().toISOString().split('T')[0], etDay: 5, crlVal: "" };
     
-    function setTab(m) { 
-        state.mode = m; 
+    function execTab(m) { 
+        appState.mode = m; 
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
         document.getElementById(`tab-${m}`).classList.add('active'); 
-        renderInputs(); 
+        drawInputs(); 
     }
 
-    function setTargetDate(m) { 
-        state.targetMode = m; 
+    function execTargetDate(m) { 
+        appState.targetMode = m; 
         document.getElementById('btn-today').classList.toggle('active', m === 'today'); 
         document.getElementById('btn-custom').classList.toggle('active', m === 'custom'); 
         document.getElementById('targetDateInput').style.display = (m === 'custom') ? 'block' : 'none'; 
-        if (m === 'today') state.targetDate = new Date().toISOString().split('T')[0]; 
-        calculate(); 
+        if (m === 'today') appState.targetDate = new Date().toISOString().split('T')[0]; 
+        performCalc(); 
     }
 
-    function renderInputs() {
+    function drawInputs() {
         const area = document.getElementById('input-fields');
         let html = '';
-        if (state.mode === 'crl') {
-            html = `<label>CRL v mm</label><input type="number" id="crlInput" value="${state.crlVal}" placeholder="Zadejte CRL" oninput="state.crlVal=this.value; calculate()">
-                    <label>Datum ultrazvuku</label><input type="date" id="baseDate" value="${state.baseDate}" onchange="state.baseDate=this.value; calculate()">`;
+        if (appState.mode === 'crl') {
+            html = `<label>CRL v mm</label><input type="number" id="crlInput" value="${appState.crlVal}" placeholder="Zadejte CRL" oninput="appState.crlVal=this.value; performCalc()">
+                    <label>Datum ultrazvuku</label><input type="date" id="baseDate" value="${appState.baseDate}" onchange="appState.baseDate=this.value; performCalc()">`;
         } else {
             const labels = {lmp: 'Poslední MS', opu: 'Datum OPU', et: 'Datum transferu'};
-            html = `<label>${labels[state.mode]}</label><input type="date" id="baseDate" value="${state.baseDate}" onchange="state.baseDate=this.value; calculate()">`;
-            if (state.mode === 'et') { 
-                html += `<div class="days-grid">` + [3,4,5,6].map(d => `<button class="day-btn ${state.etDay == d ? 'active' : ''}" onclick="state.etDay=${d}; renderInputs()">D${d}</button>`).join('') + `</div>`; 
+            html = `<label>${labels[appState.mode]}</label><input type="date" id="baseDate" value="${appState.baseDate}" onchange="appState.baseDate=this.value; performCalc()">`;
+            if (appState.mode === 'et') { 
+                html += `<div class="days-grid">` + [3,4,5,6].map(d => `<button class="day-btn ${appState.etDay == d ? 'active' : ''}" onclick="appState.etDay=${d}; drawInputs()">${d==='D'?'':''}D${d}</button>`).join('') + `</div>`; 
             }
         }
         area.innerHTML = html; 
-        calculate();
+        performCalc();
     }
 
-    function calculate() {
-        if (state.targetMode === 'custom') { state.targetDate = document.getElementById('targetDateInput').value || state.targetDate; }
-        let lmp = new Date(state.baseDate);
+    function performCalc() {
+        if (appState.targetMode === 'custom') { appState.targetDate = document.getElementById('targetDateInput').value || appState.targetDate; }
+        let lmp = new Date(appState.baseDate);
         
-        if (state.mode === 'opu') lmp.setDate(lmp.getDate() - 14);
-        if (state.mode === 'et') lmp.setDate(lmp.getDate() - (14 + state.etDay));
-        if (state.mode === 'crl') { 
-            let crl = parseFloat(state.crlVal);
+        if (appState.mode === 'opu') lmp.setDate(lmp.getDate() - 14);
+        if (appState.mode === 'et') lmp.setDate(lmp.getDate() - (14 + appState.etDay));
+        if (appState.mode === 'crl') { 
+            let crl = parseFloat(appState.crlVal);
             if (isNaN(crl) || crl <= 0) {
                 document.getElementById('result-area').innerHTML = `<div class="result-card"><div style="padding-top:40px; opacity:0.6;">Zadejte hodnotu CRL</div></div>`;
                 return;
             }
             let gaInDays = 0;
-            if (crl === 44) {
-                gaInDays = 78; 
-            } else {
-                let weeks = Math.exp(1.68496 + (0.31564 * Math.sqrt(crl)) - (0.04933 * crl));
-                gaInDays = Math.round(weeks * 7);
-            }
+            if (crl === 44) { gaInDays = 78; } 
+            else { let weeks = Math.exp(1.68496 + (0.31564 * Math.sqrt(crl)) - (0.04933 * crl)); gaInDays = Math.round(weeks * 7); }
             lmp.setDate(lmp.getDate() - gaInDays);
         }
 
-        const calcDay = new Date(state.targetDate);
+        const calcDay = new Date(appState.targetDate);
         const diff = Math.floor((calcDay - lmp) / (1000 * 60 * 60 * 24));
         const w = Math.floor(diff / 7), d = diff % 7;
         const edd = new Date(lmp); edd.setDate(edd.getDate() + 280);
 
         document.getElementById('result-area').innerHTML = `
             <div class="result-card">
-                <div style="font-size:12px; text-transform:uppercase; opacity:0.8">${state.targetMode === 'today' ? 'Dnes jste' : 'K vybranému datu:'}</div>
+                <div style="font-size:12px; text-transform:uppercase; opacity:0.8">${appState.targetMode === 'today' ? 'Dnes jste' : 'K vybranému datu:'}</div>
                 <div class="ga-main">${w}+${d}</div>
                 <div style="margin-bottom: 5px; font-size: 16px; font-weight: 600;">Termín: ${edd.toLocaleDateString('cs-CZ', {day:'numeric', month:'long', year:'numeric'})}</div>
-                <button class="btn-action" onclick="toggleSchedule()">Zobrazit harmonogram</button>
+                <button class="btn-action" onclick="showSchedule()">Zobrazit harmonogram</button>
             </div>`;
 
         let tableHtml = '';
@@ -140,14 +147,13 @@
         document.getElementById('schedule-body').innerHTML = tableHtml;
     }
 
-    function toggleSchedule() { 
+    function showSchedule() { 
         const s = document.getElementById('schedule-overlay'); 
         s.style.display = (s.style.display === 'block') ? 'none' : 'block'; 
         if(s.style.display === 'block') s.scrollIntoView({behavior: 'smooth'}); 
     }
 
-    // Spuštění aplikace
-    renderInputs();
+    drawInputs();
 </script>
 </body>
 </html>
