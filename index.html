@@ -28,91 +28,89 @@
             font-family: -apple-system, system-ui, sans-serif; 
             background-color: var(--bg); 
             color: var(--text); 
-            /* Zajištění odsazení od horního okraje (Safe Area) */
-            padding: calc(env(safe-area-inset-top) + 20px) 16px 40px; 
+            padding: calc(env(safe-area-inset-top) + 10px) 12px 30px; 
             display: flex; 
             justify-content: center; 
         }
 
         .app-wrapper { 
             width: 100%; 
-            max-width: 400px; 
+            max-width: 375px; 
             display: flex; 
             flex-direction: column; 
-            gap: 20px; /* Větší mezery mezi kartami */
+            gap: 10px; 
         }
 
         .section { 
             background: var(--card); 
-            border-radius: 24px; 
-            padding: 20px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.05); 
+            border-radius: 18px; 
+            padding: 15px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
         }
 
         .tabs { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
             background: var(--accent-bg); 
-            border-radius: 14px; 
-            padding: 3px; 
-            margin-bottom: 20px; 
+            border-radius: 10px; 
+            padding: 2px; 
+            margin-bottom: 12px; 
         }
 
         .tab { 
-            padding: 12px 0; 
+            padding: 8px 0; 
             border: none; 
-            border-radius: 11px; 
+            border-radius: 8px; 
             background: transparent; 
             font-weight: 600; 
-            font-size: 12px; 
+            font-size: 11px; 
             color: var(--secondary-text); 
             cursor: pointer; 
-            transition: all 0.2s ease;
         }
 
         .tab.active { 
             background: var(--card); 
             color: var(--text); 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1); 
         }
 
         label { 
             display: block; 
-            font-size: 11px; 
+            font-size: 10px; 
             color: var(--secondary-text); 
-            margin: 0 0 8px 6px; 
+            margin: 0 0 4px 4px; 
             text-transform: uppercase; 
-            letter-spacing: 0.8px; 
+            letter-spacing: 0.5px; 
         }
 
         input { 
             width: 100%; 
-            height: 54px; 
-            border-radius: 14px; 
+            height: 46px; 
+            border-radius: 10px; 
             border: none; 
             background: var(--accent-bg); 
             color: var(--text); 
-            font-size: 18px; 
+            font-size: 16px; 
             text-align: center; 
-            margin-bottom: 15px; 
+            margin-bottom: 10px; 
             outline: none; 
         }
 
         .days-grid { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
-            gap: 10px; 
-            margin-bottom: 20px; 
+            gap: 6px; 
+            margin-bottom: 15px; 
         }
 
         .day-btn { 
-            height: 48px; 
-            border-radius: 12px; 
+            height: 40px; 
+            border-radius: 8px; 
             border: none; 
             background: var(--accent-bg); 
             color: var(--text); 
             font-weight: 600; 
-            font-size: 14px; 
+            font-size: 13px; 
         }
 
         .day-btn.active { background: var(--primary); color: white; }
@@ -120,17 +118,17 @@
         .date-toggle { 
             display: flex; 
             background: var(--accent-bg); 
-            border-radius: 12px; 
-            padding: 3px; 
-            margin-bottom: 5px; 
+            border-radius: 9px; 
+            padding: 2px; 
+            margin-bottom: 2px; 
         }
 
         .toggle-btn { 
             flex: 1; 
-            padding: 10px; 
+            padding: 7px; 
             border: none; 
-            border-radius: 10px; 
-            font-size: 14px; 
+            border-radius: 7px; 
+            font-size: 12px; 
             font-weight: 600; 
             background: transparent; 
             color: var(--secondary-text); 
@@ -138,59 +136,53 @@
 
         .toggle-btn.active { background: var(--card); color: var(--primary); }
 
-        /* Hlavní karta výsledku */
         .result-card { 
             background: var(--primary); 
-            border-radius: 28px; 
-            padding: 30px 25px; 
+            border-radius: 22px; 
+            padding: 20px 18px; 
             color: white; 
-            text-align: left; 
         }
 
         .ga-main { 
-            font-size: 80px; 
+            font-size: 64px; 
             font-weight: 800; 
             line-height: 1; 
-            letter-spacing: -4px; 
-            margin-bottom: 12px; 
+            letter-spacing: -3px; 
+            margin-bottom: 6px; 
         }
 
         .edd-info { 
-            font-size: 18px; 
+            font-size: 15px; 
             font-weight: 600; 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             border-bottom: 1px solid rgba(255,255,255,0.2); 
-            padding-bottom: 20px; 
+            padding-bottom: 15px; 
         }
 
         .stats-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-            margin-bottom: 25px; 
+            gap: 12px; 
+            margin-bottom: 18px; 
         }
 
         .stat-item { display: flex; flex-direction: column; }
-        .stat-lbl { font-size: 11px; text-transform: uppercase; opacity: 0.7; letter-spacing: 0.5px; }
-        .stat-val { font-size: 17px; font-weight: 700; margin-top: 2px; }
+        .stat-lbl { font-size: 9px; text-transform: uppercase; opacity: 0.7; }
+        .stat-val { font-size: 14px; font-weight: 700; }
 
         .btn-schedule { 
             width: 100%; 
-            height: 56px; 
-            border-radius: 16px; 
+            height: 48px; 
+            border-radius: 12px; 
             border: none; 
             font-weight: 700; 
-            font-size: 16px; 
+            font-size: 14px; 
             background: white; 
             color: var(--primary); 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        #schedule-overlay { display: none; margin-top: 5px; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         table { width: 100%; border-collapse: collapse; }
-        td { padding: 14px 0; border-top: 1px solid var(--accent-bg); font-size: 15px; }
+        td { padding: 10px 0; border-top: 1px solid var(--accent-bg); font-size: 13px; }
         .current-week { color: var(--primary); font-weight: 800; }
     </style>
 </head>
@@ -208,13 +200,13 @@
             <button class="toggle-btn active" id="b-td" onclick="setTarget('today')">Dnes</button>
             <button class="toggle-btn" id="b-cs" onclick="setTarget('custom')">Jiné datum</button>
         </div>
-        <input type="date" id="customDate" style="display:none; margin-top: 15px;" onchange="calculate()">
+        <input type="date" id="customDate" style="display:none; margin-top: 10px;" onchange="calculate()">
     </div>
 
     <div id="result"></div>
 
-    <div id="schedule-overlay" class="section">
-        <h3 style="margin-bottom:15px; font-size:18px;">Harmonogram</h3>
+    <div id="schedule-overlay" class="section" style="display:none;">
+        <h3 style="margin-bottom:10px; font-size:15px;">Harmonogram</h3>
         <table><tbody id="schedule-body"></tbody></table>
     </div>
 </div>
@@ -240,7 +232,7 @@
     function render() {
         const div = document.getElementById('inputs');
         if (app.mode === 'crl') {
-            div.innerHTML = `<label>CRL v mm</label><input type="number" value="${app.crl}" placeholder="Např. 44" oninput="app.crl=this.value; calculate()">
+            div.innerHTML = `<label>CRL v mm</label><input type="number" value="${app.crl}" placeholder="Zadejte mm" oninput="app.crl=this.value; calculate()">
                              <label>Datum UTZ</label><input type="date" value="${app.baseDate}" onchange="app.baseDate=this.value; calculate()">`;
         } else {
             const lbls = {lmp:'Poslední MS', opu:'Datum OPU', et:'Datum transferu'};
@@ -288,7 +280,7 @@
 
         document.getElementById('result').innerHTML = `
             <div class="result-card">
-                <div style="font-size: 13px; font-weight: 700; opacity: 0.8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Dnes jste</div>
+                <div style="font-size: 11px; font-weight: 700; opacity: 0.8; margin-bottom: 2px; text-transform: uppercase;">Dnes jste</div>
                 <div class="ga-main">${w}+${d}</div>
                 <div class="edd-info">Termín: ${edd.toLocaleDateString('cs-CZ', {day:'numeric', month:'long', year:'numeric'})}</div>
                 <div class="stats-grid">
@@ -303,7 +295,7 @@
         let tableHtml = '';
         for (let i = 4; i <= 42; i++) {
             let dDate = new Date(lmp); dDate.setDate(dDate.getDate() + (i * 7));
-            tableHtml += `<tr class="${i === w ? 'current-week' : ''}"><td>${i}. týden (ukončený)</td><td style="text-align:right">${dDate.toLocaleDateString('cs-CZ', {day:'numeric', month:'short'})}</td></tr>`;
+            tableHtml += `<tr class="${i === w ? 'current-week' : ''}"><td>${i}. týden</td><td style="text-align:right">${dDate.toLocaleDateString('cs-CZ', {day:'numeric', month:'short'})}</td></tr>`;
         }
         document.getElementById('schedule-body').innerHTML = tableHtml;
     }
@@ -314,7 +306,6 @@
         const isOpen = s.style.display === 'block';
         s.style.display = isOpen ? 'none' : 'block';
         btn.innerText = isOpen ? 'Zobrazit harmonogram' : 'Skrýt harmonogram';
-        if(!isOpen) s.scrollIntoView({behavior: 'smooth'});
     }
 
     render();
