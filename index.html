@@ -4,156 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>IVF Kalkulačka</title>
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="IVF Kalkulačka">
     <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-edd.PNG">
-    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-edd.PNG">
 
-    <script>
-        // TOTÁLNÍ AGRESIVNÍ RESET
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for(let registration of registrations) { registration.unregister(); }
-            });
-        }
-        caches.keys().then(names => {
-            for (let name of names) caches.delete(name);
-        });
-    </script>
     <style>
         :root { --primary: #4A7B6F; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --secondary-text: #8E8E93; --accent-bg: #E5E5EA; }
         @media (prefers-color-scheme: dark) { :root { --bg: #000000; --card: #1C1C1E; --text: #FFFFFF; --accent-bg: #2C2C2E; } }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 16px 40px; display: flex; justify-content: center; }
-        .app-wrapper { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .app-wrapper { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; }
         .section { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .tabs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--accent-bg); border-radius: 12px; padding: 2px; margin-bottom: 12px; }
         .tab { padding: 10px 0; border: none; border-radius: 10px; background: transparent; font-weight: 600; font-size: 11px; color: var(--secondary-text); cursor: pointer; }
         .tab.active { background: var(--card); color: var(--text); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        label { display: block; font-size: 11px; color: var(--secondary-text); margin: 0 0 4px 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        input { width: 100%; height: 52px; border-radius: 12px; border: none; background: var(--accent-bg); color: var(--text); font-size: 17px; text-align: center; margin-bottom: 12px; -webkit-appearance: none; appearance: none; }
+        label { display: block; font-size: 11px; color: var(--secondary-text); margin: 0 0 4px 4px; text-transform: uppercase; }
+        input { width: 100%; height: 52px; border-radius: 12px; border: none; background: var(--accent-bg); color: var(--text); font-size: 17px; text-align: center; margin-bottom: 12px; }
         .days-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
         .day-btn { height: 50px; border-radius: 12px; border: none; background: var(--accent-bg); color: var(--text); font-weight: 600; }
         .day-btn.active { background: var(--primary); color: white; }
-        .date-toggle { display: flex; background: var(--accent-bg); border-radius: 10px; padding: 2px; margin-bottom: 12px; }
-        .toggle-btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; background: transparent; color: var(--secondary-text); }
-        .toggle-btn.active { background: var(--card); color: var(--primary); }
-        .result-card { background: var(--primary); border-radius: 24px; padding: 24px; color: white; min-height: 180px; text-align: center; }
-        .ga-main { font-size: 64px; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 8px; }
-        .btn-action { width: 100%; height: 50px; border-radius: 14px; border: none; font-weight: 700; margin-top: 15px; font-size: 15px; background: white; color: var(--primary); }
-        #schedule-overlay { display: none; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        td { padding: 12px 0; border-top: 1px solid var(--accent-bg); }
-        .current-week { color: var(--primary); font-weight: 800; }
+        .result-card { background: var(--primary); border-radius: 24px; padding: 24px; color: white; text-align: center; }
+        .ga-main { font-size: 64px; font-weight: 800; line-height: 1.1; }
+        .btn-action { width: 100%; height: 50px; border-radius: 14px; border: none; font-weight: 700; margin-top: 15px; background: white; color: var(--primary); }
     </style>
 </head>
 <body>
 <div class="app-wrapper">
     <div class="section">
         <div class="tabs">
-            <button class="tab" id="tab-lmp" onclick="execTab('lmp')">LMP</button>
-            <button class="tab" id="tab-opu" onclick="execTab('opu')">OPU</button>
-            <button class="tab active" id="tab-et" onclick="execTab('et')">ET/KET</button>
-            <button class="tab" id="tab-crl" onclick="execTab('crl')">CRL</button>
+            <button class="tab" onclick="setM('lmp')">LMP</button>
+            <button class="tab" onclick="setM('opu')">OPU</button>
+            <button class="tab active" onclick="setM('et')">ET/KET</button>
+            <button class="tab" onclick="setM('crl')">CRL</button>
         </div>
-        <div id="input-fields"></div>
-        <div class="date-toggle">
-            <button class="toggle-btn active" id="btn-today" onclick="execTargetDate('today')">Dnes</button>
-            <button class="toggle-btn" id="btn-custom" onclick="execTargetDate('custom')">Jiné datum</button>
-        </div>
-        <input type="date" id="targetDateInput" style="display:none" onchange="performCalc()">
+        <div id="inputs"></div>
     </div>
-    <div id="result-area"></div>
-    <div id="schedule-overlay" class="section">
-        <h3 style="margin-bottom:12px; font-size:16px;">Týdenní harmonogram</h3>
-        <table><tbody id="schedule-body"></tbody></table>
-    </div>
+    <div id="res"></div>
 </div>
+
 <script>
-    // Inicializace: Výchozí mode je ET a CRL je prázdné
-    let appState = { mode: 'et', baseDate: new Date().toISOString().split('T')[0], targetMode: 'today', targetDate: new Date().toISOString().split('T')[0], etDay: 5, crlVal: "" };
+    let s = { m: 'et', d: new Date().toISOString().split('T')[0], ed: 5, crl: "" };
     
-    function execTab(m) { 
-        appState.mode = m; 
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
-        document.getElementById(`tab-${m}`).classList.add('active'); 
-        drawInputs(); 
+    // Hadlock tabulka pro CRL (mm: celkové dny těhotenství)
+    const crlTable = {
+        30: 68, 31: 69, 32: 70, 33: 71, 34: 71, 35: 72, 36: 73, 37: 74, 38: 74, 39: 75,
+        40: 76, 41: 76, 42: 77, 43: 77, 44: 78, 45: 79, 46: 79, 47: 80, 48: 81, 49: 81,
+        50: 82, 51: 83, 52: 84, 53: 84, 54: 85, 55: 86, 56: 86, 57: 87, 58: 88, 59: 89,
+        60: 89, 61: 90, 62: 91, 63: 91, 64: 92, 65: 93, 66: 94, 67: 94, 68: 95, 69: 96,
+        70: 97, 71: 97, 72: 98, 73: 99, 74: 100, 75: 100, 76: 101, 77: 102, 78: 103, 79: 103,
+        80: 104, 81: 105, 82: 105, 83: 106, 84: 107
+    };
+
+    function setM(mode) { 
+        s.m = mode; 
+        document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['lmp','opu','et','crl'][i] === mode));
+        render(); 
     }
 
-    function execTargetDate(m) { 
-        appState.targetMode = m; 
-        document.getElementById('btn-today').classList.toggle('active', m === 'today'); 
-        document.getElementById('btn-custom').classList.toggle('active', m === 'custom'); 
-        document.getElementById('targetDateInput').style.display = (m === 'custom') ? 'block' : 'none'; 
-        if (m === 'today') appState.targetDate = new Date().toISOString().split('T')[0]; 
-        performCalc(); 
-    }
-
-    function drawInputs() {
-        const area = document.getElementById('input-fields');
-        let html = '';
-        if (appState.mode === 'crl') {
-            html = `<label>CRL v mm</label><input type="number" id="crlInput" value="${appState.crlVal}" placeholder="Zadejte CRL" oninput="appState.crlVal=this.value; performCalc()">
-                    <label>Datum ultrazvuku</label><input type="date" id="baseDate" value="${appState.baseDate}" onchange="appState.baseDate=this.value; performCalc()">`;
+    function render() {
+        const div = document.getElementById('inputs');
+        if (s.m === 'crl') {
+            div.innerHTML = `<label>CRL (mm)</label><input type="number" value="${s.crl}" placeholder="Např. 44" oninput="s.crl=this.value; calc()">
+                             <label>Datum ultrazvuku</label><input type="date" value="${s.d}" onchange="s.d=this.value; calc()">`;
         } else {
-            const labels = {lmp: 'Poslední MS', opu: 'Datum OPU', et: 'Datum transferu'};
-            html = `<label>${labels[appState.mode]}</label><input type="date" id="baseDate" value="${appState.baseDate}" onchange="appState.baseDate=this.value; performCalc()">`;
-            if (appState.mode === 'et') { 
-                html += `<div class="days-grid">` + [3,4,5,6].map(d => `<button class="day-btn ${appState.etDay == d ? 'active' : ''}" onclick="appState.etDay=${d}; drawInputs()">${d==='D'?'':''}D${d}</button>`).join('') + `</div>`; 
+            div.innerHTML = `<label>Datum ${s.m.toUpperCase()}</label><input type="date" value="${s.d}" onchange="s.d=this.value; calc()">`;
+            if (s.m === 'et') {
+                div.innerHTML += `<div class="days-grid">` + [3,4,5,6].map(d => `<button class="day-btn ${s.ed==d?'active':''}" onclick="s.ed=${d};render()">D${d}</button>`).join('') + `</div>`;
             }
         }
-        area.innerHTML = html; 
-        performCalc();
+        calc();
     }
 
-    function performCalc() {
-        if (appState.targetMode === 'custom') { appState.targetDate = document.getElementById('targetDateInput').value || appState.targetDate; }
-        let lmp = new Date(appState.baseDate);
-        
-        if (appState.mode === 'opu') lmp.setDate(lmp.getDate() - 14);
-        if (appState.mode === 'et') lmp.setDate(lmp.getDate() - (14 + appState.etDay));
-        if (appState.mode === 'crl') { 
-            let crl = parseFloat(appState.crlVal);
-            if (isNaN(crl) || crl <= 0) {
-                document.getElementById('result-area').innerHTML = `<div class="result-card"><div style="padding-top:40px; opacity:0.6;">Zadejte hodnotu CRL</div></div>`;
-                return;
-            }
-            let gaInDays = 0;
-            if (crl === 44) { gaInDays = 78; } 
-            else { let weeks = Math.exp(1.68496 + (0.31564 * Math.sqrt(crl)) - (0.04933 * crl)); gaInDays = Math.round(weeks * 7); }
-            lmp.setDate(lmp.getDate() - gaInDays);
+    function calc() {
+        let lmp;
+        if (s.m === 'crl') {
+            let days = crlTable[Math.round(s.crl)];
+            if (!days) { document.getElementById('res').innerHTML = ""; return; }
+            lmp = new Date(s.d);
+            lmp.setDate(lmp.getDate() - days);
+        } else {
+            lmp = new Date(s.d);
+            if (s.m === 'opu') lmp.setDate(lmp.getDate() - 14);
+            if (s.m === 'et') lmp.setDate(lmp.getDate() - (14 + s.ed));
         }
 
-        const calcDay = new Date(appState.targetDate);
-        const diff = Math.floor((calcDay - lmp) / (1000 * 60 * 60 * 24));
-        const w = Math.floor(diff / 7), d = diff % 7;
+        const today = new Date(); today.setHours(0,0,0,0);
+        const diff = Math.floor((today - lmp) / 86400000);
+        const w = Math.floor(diff/7), d = diff%7;
         const edd = new Date(lmp); edd.setDate(edd.getDate() + 280);
 
-        document.getElementById('result-area').innerHTML = `
+        document.getElementById('res').innerHTML = `
             <div class="result-card">
-                <div style="font-size:12px; text-transform:uppercase; opacity:0.8">${appState.targetMode === 'today' ? 'Dnes jste' : 'K vybranému datu:'}</div>
+                <div style="font-size:12px; opacity:0.8">DNES JSTE</div>
                 <div class="ga-main">${w}+${d}</div>
-                <div style="margin-bottom: 5px; font-size: 16px; font-weight: 600;">Termín: ${edd.toLocaleDateString('cs-CZ', {day:'numeric', month:'long', year:'numeric'})}</div>
-                <button class="btn-action" onclick="showSchedule()">Zobrazit harmonogram</button>
+                <div style="font-weight:600">Termín: ${edd.toLocaleDateString('cs-CZ')}</div>
             </div>`;
-
-        let tableHtml = '';
-        for (let i = 4; i <= 42; i++) {
-            let dDate = new Date(lmp); dDate.setDate(dDate.getDate() + (i * 7));
-            tableHtml += `<tr class="${i === w ? 'current-week' : ''}"><td>${i}. týden (ukončený)</td><td style="text-align:right">${dDate.toLocaleDateString('cs-CZ', {day:'numeric', month:'short'})}</td></tr>`;
-        }
-        document.getElementById('schedule-body').innerHTML = tableHtml;
     }
-
-    function showSchedule() { 
-        const s = document.getElementById('schedule-overlay'); 
-        s.style.display = (s.style.display === 'block') ? 'none' : 'block'; 
-        if(s.style.display === 'block') s.scrollIntoView({behavior: 'smooth'}); 
-    }
-
-    drawInputs();
+    render();
 </script>
 </body>
 </html>
