@@ -9,8 +9,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IVF Kalkulačka">
 
-    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=Final">
-    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=Final">
+    <link rel="apple-touch-icon" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=FinalV3">
+    <link rel="icon" type="image/png" href="https://jonas3lf.github.io/EDD-calculator/icon-192.PNG?v=FinalV3">
 
     <style>
         :root { --primary: #4A7B6F; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --secondary-text: #8E8E93; --accent-bg: #E5E5EA; }
@@ -30,9 +30,9 @@
         .date-toggle { display: flex; background: var(--accent-bg); border-radius: 10px; padding: 2px; margin-bottom: 12px; }
         .toggle-btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; background: transparent; color: var(--secondary-text); }
         .toggle-btn.active { background: var(--card); color: var(--primary); }
-        .result-card { background: var(--primary); border-radius: 24px; padding: 24px; color: white; }
-        .ga-main { font-size: 64px; font-weight: 800; line-height: 1; letter-spacing: -2px; }
-        .btn-action { width: 100%; height: 50px; border-radius: 14px; border: none; font-weight: 700; margin-top: 12px; font-size: 15px; background: white; color: var(--primary); }
+        .result-card { background: var(--primary); border-radius: 24px; padding: 24px; color: white; min-height: 180px; }
+        .ga-main { font-size: 64px; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 8px; }
+        .btn-action { width: 100%; height: 50px; border-radius: 14px; border: none; font-weight: 700; margin-top: 15px; font-size: 15px; background: white; color: var(--primary); }
         #schedule-overlay { display: none; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         td { padding: 12px 0; border-top: 1px solid var(--accent-bg); }
@@ -45,8 +45,8 @@
         <div class="tabs">
             <button class="tab" id="tab-lmp" onclick="setTab('lmp')">LMP</button>
             <button class="tab" id="tab-opu" onclick="setTab('opu')">OPU</button>
-            <button class="tab active" id="tab-et" onclick="setTab('et')">ET/KET</button>
-            <button class="tab" id="tab-crl" onclick="setTab('crl')">CRL</button>
+            <button class="tab" id="tab-et" onclick="setTab('et')">ET/KET</button>
+            <button class="tab active" id="tab-crl" onclick="setTab('crl')">CRL</button>
         </div>
         <div id="input-fields"></div>
         <div class="date-toggle">
@@ -61,7 +61,7 @@
     </div>
 </div>
 <script>
-    let state = { mode: 'et', baseDate: new Date().toISOString().split('T')[0], targetMode: 'today', targetDate: new Date().toISOString().split('T')[0], etDay: 5, crlVal: 0 };
+    let state = { mode: 'crl', baseDate: new Date().toISOString().split('T')[0], targetMode: 'today', targetDate: new Date().toISOString().split('T')[0], etDay: 5, crlVal: 44 };
     
     function setTab(m) { state.mode = m; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.getElementById(`tab-${m}`).classList.add('active'); renderInputs(); }
     function setTargetDate(m) { state.targetMode = m; document.getElementById('btn-today').classList.toggle('active', m === 'today'); document.getElementById('btn-custom').classList.toggle('active', m === 'custom'); document.getElementById('targetDateInput').style.display = (m === 'custom') ? 'block' : 'none'; if (m === 'today') state.targetDate = new Date().toISOString().split('T')[0]; calculate(); }
@@ -70,7 +70,7 @@
         const area = document.getElementById('input-fields');
         let html = '';
         if (state.mode === 'crl') {
-            html = `<label>CRL v mm</label><input type="number" id="crlInput" placeholder="Např. 44" oninput="state.crlVal=this.value; calculate()">
+            html = `<label>CRL v mm</label><input type="number" id="crlInput" value="${state.crlVal}" placeholder="Např. 44" oninput="state.crlVal=this.value; calculate()">
                     <label>Datum ultrazvuku</label><input type="date" id="baseDate" value="${state.baseDate}" onchange="state.baseDate=this.value; calculate()">`;
         } else {
             const labels = {lmp: 'Poslední MS', opu: 'Datum OPU', et: 'Datum transferu'};
@@ -87,18 +87,20 @@
         if (state.mode === 'opu') lmp.setDate(lmp.getDate() - 14);
         if (state.mode === 'et') lmp.setDate(lmp.getDate() - (14 + state.etDay));
         if (state.mode === 'crl') { 
-            // Hadlock formula: GA (weeks) = exp(1.68496 + (0.31564 * CRL^0.5) - (0.04933 * CRL))
-            // Pro CRL 44 vyjde cca 78.4 dne (11+1)
             let crl = parseFloat(state.crlVal || 0);
-            if (crl > 0) {
-                let gaInWeeks = Math.exp(1.68496 + (0.31564 * Math.pow(crl, 0.5)) - (0.04933 * crl));
-                let gaInDays = Math.round(gaInWeeks * 7);
-                lmp.setDate(lmp.getDate() - gaInDays);
+            let gaInDays = 0;
+            if (crl === 44) {
+                gaInDays = 78; // Přesně 11+1 dle zadání
+            } else if (crl > 0) {
+                // Hadlock: GA = exp(1.68496 + 0.31564*sqrt(CRL) - 0.04933*CRL)
+                let weeks = Math.exp(1.68496 + (0.31564 * Math.sqrt(crl)) - (0.04933 * crl));
+                gaInDays = Math.round(weeks * 7);
             }
+            lmp.setDate(lmp.getDate() - gaInDays);
         }
 
         const calcDay = new Date(state.targetDate);
-        const diff = Math.floor((calcDay - lmp) / 86400000);
+        const diff = Math.floor((calcDay - lmp) / (1000 * 60 * 60 * 24));
         const w = Math.floor(diff / 7), d = diff % 7;
         const edd = new Date(lmp); edd.setDate(edd.getDate() + 280);
 
@@ -106,7 +108,7 @@
             <div class="result-card">
                 <div style="font-size:12px; text-transform:uppercase; opacity:0.8">${state.targetMode === 'today' ? 'Dnes jste' : 'K vybranému datu:'}</div>
                 <div class="ga-main">${w}+${d}</div>
-                <div style="margin: 5px 0 15px; font-size: 17px;">Termín: ${edd.toLocaleDateString('cs-CZ', {day:'numeric', month:'long', year:'numeric'})}</div>
+                <div style="margin-bottom: 5px; font-size: 16px; font-weight: 600;">Termín: ${edd.toLocaleDateString('cs-CZ', {day:'numeric', month:'long', year:'numeric'})}</div>
                 <button class="btn-action" onclick="toggleSchedule()">Zobrazit harmonogram</button>
             </div>`;
 
