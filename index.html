@@ -262,6 +262,8 @@
 
     function calculate() {
         let lmp = new Date(app.baseDate);
+        lmp.setHours(0,0,0,0); // Normalizace na půlnoc místního času
+
         if (app.mode === 'opu') lmp.setDate(lmp.getDate() - 14);
         else if (app.mode === 'et') lmp.setDate(lmp.getDate() - (14 + app.etDay));
         else if (app.mode === 'crl') {
@@ -274,7 +276,8 @@
         let target = app.target === 'today' ? new Date() : new Date(document.getElementById('customDate').value || app.customDate);
         target.setHours(0,0,0,0);
         
-        const diff = Math.floor((target - lmp) / 86400000);
+        // Použití Math.round pro eliminaci chyb časového posunu (DST)
+        const diff = Math.round((target - lmp) / 86400000);
         const w = Math.floor(diff/7), d = diff%7;
         const edd = new Date(lmp); edd.setDate(edd.getDate() + 280);
 
